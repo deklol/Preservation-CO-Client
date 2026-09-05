@@ -33,6 +33,8 @@ This is a small part of my Preservation Conquer client, shared for people who wa
 
 **This is the skeleton, not the full client.** There is no server connection, combat, skill system, effects or game windows. Game assets are not included.
 
+Want to play the full client? **[Try it on the Preservation CO server](https://conquer.dek.cx).**
+
 ## Build and run
 
 You need a **Conquer Online 5065 installation**, Rust 1.95 or newer, and Visual Studio C++ Build Tools with the Windows SDK. Tested on Windows x64.
