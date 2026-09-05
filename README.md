@@ -30,6 +30,7 @@ This is a small part of my Preservation Conquer client, shared for people who wa
 
 - Map and character rendering, equipment, shadows and nameplates
 - Walking, running, jumping and collision
+- Movement sounds from your 5065 installation
 - Original minimap with a player marker, zoom and expand controls
 - Readers for the original client files
 

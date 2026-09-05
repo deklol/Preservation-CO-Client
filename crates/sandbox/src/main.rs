@@ -1,6 +1,7 @@
 // Source: @digitalm1nd on x.com / _dek on Discord — Preservation Conquer project — https://discord.gg/CvKPXEHYRY
 mod action;
 mod assets;
+mod audio;
 mod character;
 mod labels;
 mod map;
@@ -24,6 +25,7 @@ struct App {
     map: map::Map,
     character: character::Character,
     player: movement::Player,
+    audio: Option<audio::MovementAudio>,
     window: Option<Arc<Window>>,
     renderer: Option<renderer::Renderer>,
     cursor: [f32; 2],
@@ -115,6 +117,9 @@ impl ApplicationHandler for App {
                         .jump(&self.map, target, self.character.duration(Action::Jump));
                 } else if self.held && !self.player.moving() {
                     self.move_cursor();
+                }
+                if let Some(audio) = &mut self.audio {
+                    audio.update(&self.player);
                 }
                 if let Some(renderer) = &mut self.renderer
                     && let Err(error) = renderer.draw(
@@ -233,7 +238,18 @@ fn run() -> Result<()> {
         None
     });
     let player = movement::Player::new(&map, spawn)?;
+    let mut audio = match audio::MovementAudio::load(&mut assets, &character) {
+        Ok(audio) => Some(audio),
+        Err(error) if check => return Err(error),
+        Err(error) => {
+            eprintln!("Audio unavailable: {error}");
+            None
+        }
+    };
     if check {
+        if let Some(audio) = &audio {
+            audio.check()?;
+        }
         for part in &character.parts {
             assets.image(&part.texture)?;
         }
@@ -260,11 +276,15 @@ fn run() -> Result<()> {
         );
         return Ok(());
     }
+    if let Some(audio) = &mut audio {
+        audio.open_device();
+    }
     let mut app = App {
         assets,
         map,
         character,
         player,
+        audio,
         window: None,
         renderer: None,
         cursor: [0.0; 2],

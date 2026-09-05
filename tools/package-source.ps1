@@ -4,7 +4,7 @@ $projectRoot = Split-Path -Parent $PSScriptRoot
 $outputDirectory = Join-Path $projectRoot 'dist'
 New-Item -ItemType Directory -Path $outputDirectory -Force | Out-Null
 $outputPath = Join-Path $outputDirectory 'Preservation-Conquer-Skeleton-Source.zip'
-$files = @('Cargo.toml','Cargo.lock','README.md','CONTRIBUTING.md','LICENSE','NOTICE','character.ini','.gitignore','tools/package-source.ps1','docs/images/logo.png') | ForEach-Object {Get-Item -LiteralPath (Join-Path $projectRoot $_)}
+$files = @('Cargo.toml','Cargo.lock','README.md','CONTRIBUTING.md','LICENSE','NOTICE','character.ini','.gitignore','tools/package-source.ps1','docs/images/logo.png','docs/movement.md') | ForEach-Object {Get-Item -LiteralPath (Join-Path $projectRoot $_)}
 $files += Get-ChildItem -LiteralPath (Join-Path $projectRoot 'crates') -Recurse -File | Where-Object {$_.Extension -in '.rs','.wgsl','.toml'}
 Add-Type -AssemblyName System.IO.Compression
 Add-Type -AssemblyName System.IO.Compression.FileSystem

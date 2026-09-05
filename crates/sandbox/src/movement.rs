@@ -21,6 +21,8 @@ pub struct Player {
     pub running: bool,
     pub height: f32,
     pub action: Action,
+    pub action_instance: u64,
+    right_foot: bool,
     route: VecDeque<[i32; 2]>,
     segment: Option<Segment>,
 }
@@ -52,6 +54,8 @@ impl Player {
             running: true,
             height: 0.0,
             action: Action::Idle,
+            action_instance: 0,
+            right_foot: false,
             route: VecDeque::new(),
             segment: None,
         })
@@ -98,6 +102,7 @@ impl Player {
         self.facing = jump_facing(self.position, target).unwrap_or(self.facing);
         self.route.clear();
         self.action = Action::Jump;
+        self.action_instance = self.action_instance.wrapping_add(1);
         self.segment = Some(Segment {
             start: self.position,
             target,
@@ -122,11 +127,14 @@ impl Player {
                     let target = target.map(|v| v as f32);
                     self.facing = -f32::from(direction_towards(self.position, target) + 1)
                         * std::f32::consts::FRAC_PI_4;
-                    self.action = if self.running {
-                        Action::Run
-                    } else {
-                        Action::Walk
+                    self.action = match (self.running, self.right_foot) {
+                        (false, false) => Action::WalkLeft,
+                        (false, true) => Action::WalkRight,
+                        (true, false) => Action::RunLeft,
+                        (true, true) => Action::RunRight,
                     };
+                    self.right_foot = !self.right_foot;
+                    self.action_instance = self.action_instance.wrapping_add(1);
                     self.segment = Some(Segment {
                         start: self.position,
                         target,
@@ -160,7 +168,7 @@ impl Player {
                 self.segment = None;
                 self.action = Action::Idle;
             }
-            if remaining <= f32::EPSILON || self.segment.is_some() {
+            if self.segment.is_some() {
                 break;
             }
         }

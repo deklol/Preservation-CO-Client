@@ -15,3 +15,4 @@ pollster.workspace = true
 bytemuck.workspace = true
 fontdb = "0.23"
 fontdue = "0.9"
+rodio = { version = "0.22.2", default-features = false, features = ["playback", "mp3", "wav"] }

@@ -19,14 +19,46 @@ pub fn movement(map: &Map, character: &Character, spawn: [i32; 2]) -> Result<()>
         if !player.moving() {
             return Err("Asset-backed route was not created".into());
         }
+        let mut last_instance = 0;
+        let mut steps = Vec::new();
         for _ in 0..3600 {
             player.tick(1.0 / 120.0);
+            if player.action_instance != last_instance {
+                let expected = match (running, steps.len() % 2 == 1) {
+                    (false, false) => Action::WalkLeft,
+                    (false, true) => Action::WalkRight,
+                    (true, false) => Action::RunLeft,
+                    (true, true) => Action::RunRight,
+                };
+                if player.action != expected {
+                    return Err("Movement did not alternate left/right actions".into());
+                }
+                last_instance = player.action_instance;
+                steps.push(player.action);
+            }
             if !player.moving() {
                 break;
             }
         }
         if player.cell() != target {
             return Err("Route did not reach destination".into());
+        }
+        if steps.len() < 2 {
+            return Err("Movement check needs both foot actions".into());
+        }
+    }
+    for action in Action::ALL {
+        for part in &character.parts {
+            for progress in [0.0, 0.5, 1.0] {
+                let vertices = character.vertices(part, 0.0, action, 0.0, Some(progress));
+                if vertices.is_empty()
+                    || vertices
+                        .iter()
+                        .any(|(p, uv)| p.iter().chain(uv).any(|v| !v.is_finite()))
+                {
+                    return Err("Movement pose contains invalid geometry".into());
+                }
+            }
         }
     }
     let mut player = Player::new(map, Some(spawn))?;

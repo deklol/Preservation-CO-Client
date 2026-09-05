@@ -15,7 +15,9 @@ pub struct Part {
 pub struct Character {
     pub parts: Vec<Part>,
     actions: Vec<C3Document>,
-    intervals: [f32; 4],
+    intervals: [f32; 6],
+    pub body_id: u32,
+    pub weapon_action: u32,
     pub name: String,
     pub guild: String,
     pub guild_rank: String,
@@ -57,26 +59,26 @@ impl Character {
         let mesh = doc.meshes[index].clone();
         let right = number("RightWeapon")?;
         let left = number("LeftWeapon")?;
-        let weapon_action = if right != 0 && left != 0 {
-            600 + right % 100_000 / 10_000 * 10 + left % 100_000 / 10_000
-        } else {
-            right / 1000
-        };
-        let mut motion = |action| -> Result<C3Document> {
-            let path = [
-                body * 1_000_000 + weapon_action * 1000 + action,
-                1_000_000 + weapon_action * 1000 + action,
-                body * 1_000_000 + action,
-                1_000_000 + action,
-            ]
-            .into_iter()
-            .find_map(|key| motions.get(key))
-            .ok_or("Body action missing")?;
+        let weapon_action =
+            sandbox_data::weapon_action::resolve_weapon_action(Some(right), Some(left));
+        let mut motion = |action: Action| -> Result<C3Document> {
+            let path = std::iter::once(action)
+                .chain(action.paired_action())
+                .flat_map(|action| {
+                    let action = action.catalog_id();
+                    [
+                        body * 1_000_000 + weapon_action * 1000 + action,
+                        1_000_000 + weapon_action * 1000 + action,
+                        body * 1_000_000 + action,
+                        1_000_000 + action,
+                    ]
+                })
+                .find_map(|key| motions.get(key))
+                .ok_or("Body action missing")?;
             Ok(C3Document::parse(&assets.read(path.as_str())?)?)
         };
         let actions = Action::ALL
             .into_iter()
-            .map(Action::catalog_id)
             .map(&mut motion)
             .collect::<Result<Vec<_>>>()?;
         let mut parts = vec![Part {
@@ -137,21 +139,24 @@ impl Character {
             return Err("Action.dat truncated".into());
         }
         let intervals = Action::ALL.map(|action| {
-            let action = action.catalog_id();
-            [
-                body * 1_000_000 + weapon_action * 1000 + action,
-                999_000_000 + weapon_action * 1000 + action,
-                body * 1_000_000 + 999_000 + action,
-                999_999_000 + action,
-            ]
-            .into_iter()
-            .find_map(|key| {
-                (0..count)
-                    .find(|i| read(4 + i * 20 + 4) == Some(key))
-                    .and_then(|i| read(4 + i * 20 + 12))
-            })
-            .unwrap_or(33)
-            .max(5) as f32
+            std::iter::once(action)
+                .chain(action.paired_action())
+                .flat_map(|action| {
+                    let action = action.catalog_id();
+                    [
+                        body * 1_000_000 + weapon_action * 1000 + action,
+                        999_000_000 + weapon_action * 1000 + action,
+                        body * 1_000_000 + 999_000 + action,
+                        999_999_000 + action,
+                    ]
+                })
+                .find_map(|key| {
+                    (0..count)
+                        .find(|i| read(4 + i * 20 + 4) == Some(key))
+                        .and_then(|i| read(4 + i * 20 + 12))
+                })
+                .unwrap_or(33)
+                .max(5) as f32
         });
         for action in &actions {
             for part in &parts {
@@ -164,6 +169,8 @@ impl Character {
             parts,
             actions,
             intervals,
+            body_id: body,
+            weapon_action,
             name: profile.first("Name").unwrap_or("dek").to_owned(),
             guild: profile.first("Guild").unwrap_or("").to_owned(),
             guild_rank: profile.first("GuildRank").unwrap_or("").to_owned(),

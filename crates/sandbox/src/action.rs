@@ -3,29 +3,50 @@
 pub enum Action {
     #[default]
     Idle,
-    Walk,
-    Run,
+    WalkLeft,
+    WalkRight,
+    RunLeft,
+    RunRight,
     Jump,
 }
 
 impl Action {
-    pub const ALL: [Self; 4] = [Self::Idle, Self::Walk, Self::Run, Self::Jump];
+    pub const ALL: [Self; 6] = [
+        Self::Idle,
+        Self::WalkLeft,
+        Self::WalkRight,
+        Self::RunLeft,
+        Self::RunRight,
+        Self::Jump,
+    ];
 
     pub const fn index(self) -> usize {
         match self {
             Self::Idle => 0,
-            Self::Walk => 1,
-            Self::Run => 2,
-            Self::Jump => 3,
+            Self::WalkLeft => 1,
+            Self::WalkRight => 2,
+            Self::RunLeft => 3,
+            Self::RunRight => 4,
+            Self::Jump => 5,
         }
     }
 
     pub const fn catalog_id(self) -> u32 {
         match self {
             Self::Idle => 100,
-            Self::Walk => 110,
-            Self::Run => 120,
+            Self::WalkLeft => 110,
+            Self::WalkRight => 111,
+            Self::RunLeft => 120,
+            Self::RunRight => 121,
             Self::Jump => 130,
+        }
+    }
+
+    pub const fn paired_action(self) -> Option<Self> {
+        match self {
+            Self::WalkRight => Some(Self::WalkLeft),
+            Self::RunRight => Some(Self::RunLeft),
+            _ => None,
         }
     }
 }
@@ -36,7 +57,10 @@ mod tests {
 
     #[test]
     fn actions_keep_their_catalog_and_storage_order() {
-        assert_eq!(Action::ALL.map(Action::index), [0, 1, 2, 3]);
-        assert_eq!(Action::ALL.map(Action::catalog_id), [100, 110, 120, 130]);
+        assert_eq!(Action::ALL.map(Action::index), [0, 1, 2, 3, 4, 5]);
+        assert_eq!(
+            Action::ALL.map(Action::catalog_id),
+            [100, 110, 111, 120, 121, 130]
+        );
     }
 }
