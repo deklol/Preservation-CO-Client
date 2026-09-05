@@ -11,7 +11,7 @@
   <img src="https://img.shields.io/badge/Platform-Windows%20x64-0078D4" alt="Platform: Windows x64">
   <img src="https://img.shields.io/badge/Language-Rust-CE422B?logo=rust" alt="Language: Rust">
   <img src="https://img.shields.io/badge/Renderer-wgpu-6E56CF" alt="Renderer: wgpu">
-  <a href="#credit"><img src="https://img.shields.io/badge/License-See%20credit%20terms-lightgrey" alt="License: See credit terms"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-Apache%202.0-blue" alt="License: Apache 2.0"></a>
 </p>
 
 <p align="center">
@@ -69,11 +69,13 @@ Working on a Conquer client, researching the old game, or interested in helping 
 
 I share more detailed explanations, source snippets and progress there. You can also get involved in beta testing the full Preservation Conquer client. Find me as **_dek**.
 
-## Credit
+## License and credit
 
 By [@digitalm1nd](https://x.com/digitalm1nd) / **_dek** on Discord, for Preservation Conquer.
 
-**If you use this code, including modified versions, credit @digitalm1nd / _dek and Preservation Conquer.** Keep the source headers and include the [Discord link](https://discord.gg/CvKPXEHYRY) in your README or credits. Don't pass it off as entirely your own work.
+The source code is licensed under [Apache 2.0](LICENSE). You can use, modify and distribute it, including commercially. When redistributing, include the license, retain applicable source attribution notices, mark changed files and reproduce the relevant credits from [NOTICE](NOTICE), as required by the license.
+
+Credit in your README or credits screen is appreciated, but Apache 2.0 also allows the NOTICE file or accompanying documentation. Game assets and the project logo are not covered by this source code license. Dependencies keep their own licenses.
 
 ## Tests
 
