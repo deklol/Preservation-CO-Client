@@ -22,6 +22,10 @@
   <a href="https://github.com/deklol">GitHub</a>
 </p>
 
+<video src="https://i.dek.cx/8xcp.mp4" controls width="960"></video>
+
+[Watch the gameplay video](https://i.dek.cx/8xcp.mp4)
+
 ## What's here
 
 This is a small part of my Preservation Conquer client, shared for people who want to learn or build their own. It loads an empty Twin City locally as `dek`.
