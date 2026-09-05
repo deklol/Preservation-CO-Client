@@ -39,15 +39,15 @@ Want to play the full client? **[Try it on the Preservation CO server](https://c
 
 You need a **Conquer Online 5065 installation**, Rust 1.95 or newer, and Visual Studio C++ Build Tools with the Windows SDK. Tested on Windows x64.
 
-[Download the 5065 client files](https://mega.nz/#!lVwQyJBZ!mIe5uRJu0SZGJQloky0l0kfbxRkT8UmrzYU7Z4Rb7Hg), then extract them.
+[Download the 5065 client files](https://mega.nz/#!lVwQyJBZ!mIe5uRJu0SZGJQloky0l0kfbxRkT8UmrzYU7Z4Rb7Hg) and extract them into `C:\Conquer5065`. That folder must directly contain `ini`, `map`, `data.wdf` and `c3.wdf`, not another folder containing them. Keep these files separate from this source project.
 
 ```sh
 git clone https://github.com/deklol/Preservation-CO-Client.git
 cd Preservation-CO-Client
-cargo run --release --locked -- --assets "<your-5065-folder>"
+cargo run --release --locked -- --assets "C:\Conquer5065"
 ```
 
-Point `--assets` at the folder containing `ini`, `map`, `data.wdf` and `c3.wdf`. It does not need to be in a particular location.
+If you extract somewhere else, replace `C:\Conquer5065` in the command with that folder's full path.
 
 ## Controls
 
@@ -79,7 +79,7 @@ By [@digitalm1nd](https://x.com/digitalm1nd) / **_dek** on Discord, for Preserva
 
 ```sh
 cargo test --workspace --locked
-cargo run --release --locked -- --assets "<your-5065-folder>" --check-assets
+cargo run --release --locked -- --assets "C:\Conquer5065" --check-assets
 ```
 
 Run `./tools/package-source.ps1` to create a source ZIP in `dist/`. No game assets or build files are packaged.
