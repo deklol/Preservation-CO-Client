@@ -22,8 +22,6 @@
   <a href="https://github.com/deklol">GitHub</a>
 </p>
 
-<video src="https://github.com/deklol/Preservation-CO-Client/releases/download/v0.1.1/skeleton-demo.mp4" controls width="960"></video>
-
 [Watch the gameplay video](https://i.dek.cx/8xcp.mp4)
 
 ## What's here
