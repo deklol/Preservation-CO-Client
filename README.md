@@ -4,7 +4,7 @@
 
 <h1 align="center">Preservation CO Client</h1>
 
-<p align="center">An offline Conquer Online skeleton client. Written in Rust.</p>
+<p align="center">An open source Conquer Online skeleton client. Written in Rust. Forks and contributions welcome.</p>
 
 <p align="center">
   <a href="https://github.com/deklol/Preservation-CO-Client/releases/latest"><img src="https://img.shields.io/github/v/release/deklol/Preservation-CO-Client?label=Latest%20release" alt="Latest release"></a>
@@ -64,6 +64,14 @@ If you extract somewhere else, replace `C:\Conquer5065` in the command with that
 | Minimap buttons | Toggle crop/full-map view and expand/collapse |
 
 Edit `character.ini` and rebuild to change the local character. Use `--help` for launch options. Layered PUX maps are not supported.
+
+## Contribute
+
+This is an open source project for the Conquer community. Fork it, experiment, fix bugs and send pull requests. You don't need to join Discord to contribute.
+
+Improvements to rendering, movement, collision, file readers, the minimap, tests and documentation are welcome. Keep changes focused. For larger features, open an issue first so we can agree on what belongs in the skeleton.
+
+Read the short [contribution guide](CONTRIBUTING.md), or [open an issue](https://github.com/deklol/Preservation-CO-Client/issues) if you find a bug.
 
 ## Developers and preservationists
 
