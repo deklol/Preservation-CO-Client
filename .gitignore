@@ -1,0 +1,15 @@
+# Source: @digitalm1nd on x.com / _dek on Discord — Preservation Conquer project — https://discord.gg/CvKPXEHYRY
+/target/
+/dist/
+/assets/
+/private-validation/
+*.log
+*.pdb
+*.exe
+*.dll
+*.wdf
+*.dnp
+*.dds
+*.tga
+*.c3
+.env*

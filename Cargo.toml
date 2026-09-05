@@ -1,0 +1,22 @@
+# Source: @digitalm1nd on x.com / _dek on Discord — Preservation Conquer project — https://discord.gg/CvKPXEHYRY
+[workspace]
+resolver = "3"
+members = ["crates/sandbox-data", "crates/sandbox"]
+default-members = ["crates/sandbox"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.95.0"
+
+[workspace.dependencies]
+sandbox-data = { path = "crates/sandbox-data" }
+serde = { version = "1.0", features = ["derive"] }
+wgpu = { version = "30.0.0", default-features = false, features = ["std", "dx12", "vulkan", "metal", "wgsl"] }
+winit = { version = "0.30.12", default-features = false, features = ["rwh_06", "x11", "wayland"] }
+image = { version = "0.25.9", default-features = false, features = ["dds", "tga", "png", "jpeg", "bmp"] }
+pollster = "0.4.0"
+bytemuck = { version = "1.24", features = ["derive"] }
+
+[profile.release]
+strip = "debuginfo"
