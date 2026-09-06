@@ -2,7 +2,7 @@
   <a href="https://conquer.dek.cx"><img src="docs/images/logo.png" alt="Preservation Conquer" width="720"></a>
 </p>
 
-<h1 align="center">Preservation CO Client</h1>
+<h1 align="center">Preservation CO Client (5065)</h1>
 
 <p align="center">An open source Conquer Online skeleton client. Written in Rust. Forks and contributions welcome.</p>
 
@@ -30,7 +30,7 @@ This is a small part of my Preservation Conquer client, shared for people who wa
 
 - Map and character rendering, equipment, shadows and nameplates
 - Walking, running, jumping and collision
-- Movement sounds from your 5065 installation
+- Movement sounds
 - Original minimap with a player marker, zoom and expand controls
 - Readers for the original client files
 
