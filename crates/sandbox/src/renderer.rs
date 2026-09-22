@@ -432,17 +432,30 @@ impl Renderer {
         // All draw vertices share one growable GPU buffer. Creating one
         // buffer per draw every frame is disproportionately expensive on
         // WebGPU and also costs unnecessary native driver work.
+        // Empty geometry is a no-op, but a zero-length WebGPU buffer binding
+        // is invalid. Keep it out of both the packed upload and draw list.
+        draws.retain(|draw| !draw.vertices.is_empty());
         let mut vertices = Vec::new();
         let mut ranges = Vec::with_capacity(draws.len());
         for draw in &draws {
-            let start = (vertices.len() * std::mem::size_of::<Vertex>()) as u64;
+            let start = vertices.len() as u32;
             vertices.extend_from_slice(&draw.vertices);
-            let end = (vertices.len() * std::mem::size_of::<Vertex>()) as u64;
-            ranges.push((start, end, draw.vertices.len() as u32));
+            ranges.push(start..vertices.len() as u32);
         }
         let vertex_bytes = bytemuck::cast_slice(&vertices);
         if vertex_bytes.len() as u64 > self.vertex_capacity {
-            self.vertex_capacity = (vertex_bytes.len() as u64).next_power_of_two();
+            let required = vertex_bytes.len() as u64;
+            let capacity = required
+                .checked_next_power_of_two()
+                .ok_or("Sprite vertex-buffer size overflow")?;
+            if capacity > self.device.limits().max_buffer_size {
+                return Err(format!(
+                    "Sprite vertex buffer requires {required} bytes, device limit is {}",
+                    self.device.limits().max_buffer_size
+                )
+                .into());
+            }
+            self.vertex_capacity = capacity;
             self.vertex_buffer = self.device.create_buffer(&wgpu::BufferDescriptor {
                 label: Some("dynamic sprite vertex buffer (grown)"),
                 size: self.vertex_capacity,
@@ -494,7 +507,7 @@ impl Renderer {
                 occlusion_query_set: None,
                 multiview_mask: None,
             });
-            for (draw, (start, end, vertex_count)) in draws.iter().zip(&ranges) {
+            for (draw, vertex_range) in draws.iter().zip(&ranges) {
                 let Some(texture) = self.textures.get(&draw.texture) else {
                     continue;
                 };
@@ -504,8 +517,8 @@ impl Renderer {
                     &self.sprites
                 });
                 pass.set_bind_group(0, &texture.bind, &[]);
-                pass.set_vertex_buffer(0, self.vertex_buffer.slice(*start..*end));
-                pass.draw(0..*vertex_count, 0..1);
+                pass.set_vertex_buffer(0, self.vertex_buffer.slice(..));
+                pass.draw(vertex_range.clone(), 0..1);
             }
         }
         self.queue.submit([encoder.finish()]);
