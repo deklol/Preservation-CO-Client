@@ -37,6 +37,8 @@ pub struct Renderer {
     sprites: wgpu::RenderPipeline,
     actor: wgpu::RenderPipeline,
     depth: wgpu::TextureView,
+    vertex_buffer: wgpu::Buffer,
+    vertex_capacity: u64,
     textures: HashMap<String, Texture>,
     missing: HashSet<String>,
     minimap: Option<crate::minimap::Minimap>,
@@ -138,6 +140,13 @@ impl Renderer {
         let sprites = pipeline(false);
         let actor = pipeline(true);
         let depth = depth(&device, &config);
+        let vertex_capacity = 4096;
+        let vertex_buffer = device.create_buffer(&wgpu::BufferDescriptor {
+            label: Some("dynamic sprite vertex buffer"),
+            size: vertex_capacity,
+            usage: wgpu::BufferUsages::VERTEX | wgpu::BufferUsages::COPY_DST,
+            mapped_at_creation: false,
+        });
         Ok(Self {
             surface,
             device,
@@ -147,6 +156,8 @@ impl Renderer {
             sprites,
             actor,
             depth,
+            vertex_buffer,
+            vertex_capacity,
             textures: HashMap::new(),
             missing: HashSet::new(),
             minimap: None,
@@ -418,17 +429,31 @@ impl Renderer {
             }
         }
         draws.sort_by(|a, b| a.sort_depth.total_cmp(&b.sort_depth));
-        let buffers: Vec<_> = draws
-            .iter()
-            .map(|draw| {
-                self.device
-                    .create_buffer_init(&wgpu::util::BufferInitDescriptor {
-                        label: None,
-                        contents: bytemuck::cast_slice(&draw.vertices),
-                        usage: wgpu::BufferUsages::VERTEX,
-                    })
-            })
-            .collect();
+        // All draw vertices share one growable GPU buffer. Creating one
+        // buffer per draw every frame is disproportionately expensive on
+        // WebGPU and also costs unnecessary native driver work.
+        let mut vertices = Vec::new();
+        let mut ranges = Vec::with_capacity(draws.len());
+        for draw in &draws {
+            let start = (vertices.len() * std::mem::size_of::<Vertex>()) as u64;
+            vertices.extend_from_slice(&draw.vertices);
+            let end = (vertices.len() * std::mem::size_of::<Vertex>()) as u64;
+            ranges.push((start, end, draw.vertices.len() as u32));
+        }
+        let vertex_bytes = bytemuck::cast_slice(&vertices);
+        if vertex_bytes.len() as u64 > self.vertex_capacity {
+            self.vertex_capacity = (vertex_bytes.len() as u64).next_power_of_two();
+            self.vertex_buffer = self.device.create_buffer(&wgpu::BufferDescriptor {
+                label: Some("dynamic sprite vertex buffer (grown)"),
+                size: self.vertex_capacity,
+                usage: wgpu::BufferUsages::VERTEX | wgpu::BufferUsages::COPY_DST,
+                mapped_at_creation: false,
+            });
+        }
+        if !vertex_bytes.is_empty() {
+            self.queue
+                .write_buffer(&self.vertex_buffer, 0, vertex_bytes);
+        }
         let frame = match self.surface.get_current_texture() {
             wgpu::CurrentSurfaceTexture::Success(frame)
             | wgpu::CurrentSurfaceTexture::Suboptimal(frame) => frame,
@@ -469,7 +494,7 @@ impl Renderer {
                 occlusion_query_set: None,
                 multiview_mask: None,
             });
-            for (draw, buffer) in draws.iter().zip(&buffers) {
+            for (draw, (start, end, vertex_count)) in draws.iter().zip(&ranges) {
                 let Some(texture) = self.textures.get(&draw.texture) else {
                     continue;
                 };
@@ -479,8 +504,8 @@ impl Renderer {
                     &self.sprites
                 });
                 pass.set_bind_group(0, &texture.bind, &[]);
-                pass.set_vertex_buffer(0, buffer.slice(..));
-                pass.draw(0..draw.vertices.len() as u32, 0..1);
+                pass.set_vertex_buffer(0, self.vertex_buffer.slice(*start..*end));
+                pass.draw(0..*vertex_count, 0..1);
             }
         }
         self.queue.submit([encoder.finish()]);
