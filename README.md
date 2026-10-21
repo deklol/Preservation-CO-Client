@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="https://conquer.dek.cx"><img src="docs/images/logo.png" alt="Preservation Conquer" width="720"></a>
+  <a href="https://playconqueronline.com/"><img src="docs/images/logo.png" alt="Preservation Conquer" width="720"></a>
 </p>
 
 <h1 align="center">Preservation CO Client (5065)</h1>
@@ -16,7 +16,7 @@
 
 <p align="center">
   <a href="https://discord.gg/CvKPXEHYRY">Discord</a> ·
-  <a href="https://conquer.dek.cx">Preservation Conquer</a> ·
+  <a href="https://playconqueronline.com/">Preservation Conquer</a> ·
   <a href="https://dek.cx">dek.cx</a> ·
   <a href="https://x.com/digitalm1nd">@digitalm1nd</a> ·
   <a href="https://github.com/deklol">GitHub</a>
@@ -36,7 +36,7 @@ This is a small part of my Preservation Conquer client, shared for people who wa
 
 **This is the skeleton, not the full client.** There is no server connection, combat, skill system, effects or game windows. Game assets are not included.
 
-Want to play the full client? **[Try it on the Preservation CO server](https://conquer.dek.cx).**
+Want to play the full client? **[Try it on the Preservation CO server](https://playconqueronline.com/).**
 
 ## Build and run
 
